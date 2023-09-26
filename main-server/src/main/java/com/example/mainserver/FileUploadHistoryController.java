@@ -29,7 +29,7 @@ public class FileUploadHistoryController {
     private final FileUploadHistoryRepository repository;
 
     @PostMapping("/upload")
-    public FileUploadHistory upload(MultipartFile file) throws IOException {
+    public FileUploadHistory upload(MultipartFile file) {
         long startTime = System.currentTimeMillis();
 
         FileUploadHistory history = repository.save(FileUploadHistory.builder()
@@ -57,9 +57,6 @@ public class FileUploadHistoryController {
                 error -> {
                     repository.save(history.fail());
                     error.printStackTrace();
-                },
-                () -> {
-                    System.out.println("머지");
                 }
         );
 
@@ -86,13 +83,6 @@ public class FileUploadHistoryController {
         return builder.build();
     }
 
-    private MultiValueMap<String, HttpEntity<?>> fromFile2(MultipartFile multipartFile) throws IOException {
-        MultipartBodyBuilder builder = new MultipartBodyBuilder();
 
-        File convFile = new File(multipartFile.getOriginalFilename());
-        multipartFile.transferTo(convFile);
 
-        builder.part("file", convFile);
-        return builder.build();
-    }
 }

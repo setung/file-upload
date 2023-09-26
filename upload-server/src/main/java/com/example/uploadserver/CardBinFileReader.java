@@ -11,6 +11,8 @@ import org.apache.poi.xssf.eventusermodel.XSSFReader;
 import org.apache.poi.xssf.eventusermodel.XSSFSheetXMLHandler;
 import org.apache.poi.xssf.model.StylesTable;
 import org.apache.poi.xssf.usermodel.XSSFComment;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.stereotype.Component;
 import org.xml.sax.ContentHandler;
 import org.xml.sax.InputSource;
@@ -21,6 +23,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 @Component
 @Slf4j
@@ -29,7 +32,9 @@ public class CardBinFileReader {
 
     private static final String XLSX = "xlsx";
 
-    public List<CardBinNumber> readXlsx(InputStream inputStream) {
+    @Async("threadPoolTaskExecutor")
+    public CompletableFuture<List<CardBinNumber>> readXlsx(InputStream inputStream, long id) {
+        System.out.println(id + " ---Reader read start");
         ExcelSheetHandler excelSheetHandler = new ExcelSheetHandler().readExcel(inputStream);
 
         List<List<String>> rows = excelSheetHandler.getRows();
@@ -53,7 +58,14 @@ public class CardBinFileReader {
             map.put(row.get(2), cardBinNumber);
         }
 
-        return new ArrayList<>(map.values());
+        List<CardBinNumber> cardBinNumbers = new ArrayList<>(map.values());
+
+        System.out.println(id + " ---Reader read end");
+
+        if (System.currentTimeMillis() % 2 == 0)
+            throw new RuntimeException("그냥 에러");
+
+        return new AsyncResult<>(cardBinNumbers).completable();
     }
 
     @Getter
@@ -109,7 +121,6 @@ public class CardBinFileReader {
             currentCol = iCol;
             row.add(value);
         }
-
 
 
         @Override

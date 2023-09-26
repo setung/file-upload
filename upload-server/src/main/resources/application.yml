@@ -4,7 +4,7 @@ spring:
       hibernate:
         format_sql: true
         default_batch_fetch_size: 500
-    show-sql: true
+    show-sql: false
     hibernate:
       ddl-auto: update
   servlet:
@@ -13,9 +13,9 @@ spring:
       max-request-size: 500MB
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/fileupload
+    url: jdbc:mysql://localhost:13306/fileupload
     username: admin
-    password: 1234
+    password: test1234
 server:
   port: 7070
   tomcat:
